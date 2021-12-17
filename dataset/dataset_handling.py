@@ -32,6 +32,15 @@ def deprocess_image(image):
 def save_image(image, path):
     image = image * 127.5 + 127.5
     cv2.imwrite(os.path.join(path, 'result.jpg'), image)
+    
+    
+def get_images(path):
+    images_list = []
+    for file in os.listdir(path):
+        if file.endswith(".jpg"):
+            images_list.append(os.path.join(path, file))
+    return images_list
+
 
 
 
