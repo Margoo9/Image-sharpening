@@ -42,5 +42,20 @@ def get_images(path):
     return images_list
 
 
+def load_data(path):
+    images_blur = []
+    images_sharp = []
+    images_blur_names = []
+    images_sharp_names = []
+    blurs_path = os.path.join(path, 'blur')
+    sharps_path = os.path.join(path, 'sharp')
+    blurs_path, sharps_path = get_images(blurs_path), get_images(sharps_path)
+    for x, y in zip(blurs_path, sharps_path):
+        img_blur, img_sharp = load_image(x), load_image(y)
+        images_blur.append(normalize_image(img_blur))
+        images_sharp.append(normalize_image(img_sharp))
+        images_blur_names.append(x)
+        images_sharp_names.append(y)
+    return np.array(images_blur), np.array(images_sharp), np.array(images_blur_names), np.array(images_sharp_names)
 
 
