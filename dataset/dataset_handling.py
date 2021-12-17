@@ -37,7 +37,7 @@ def save_image(image, path):
 def get_images(path):
     images_list = []
     for file in os.listdir(path):
-        if file.endswith(".jpg"):
+        if file.endswith(('.jpg', '.png, 'jpeg')):
             images_list.append(os.path.join(path, file))
     return images_list
 
