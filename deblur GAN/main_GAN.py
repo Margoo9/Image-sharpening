@@ -20,6 +20,8 @@ train_X, train_Y = load_data("dataset/Train")
 test_X, test_Y = load_data("dataset/Test")
 
 image_shape = (256, 256, 3)
+channel_rate = 64
+patch_shape = (channel_rate, channel_rate, 3)
 
 
 # losses
