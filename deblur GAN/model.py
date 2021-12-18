@@ -1,11 +1,10 @@
 import keras.backend as K
 from keras.applications.vgg16 import VGG16
 from keras.models import Model
-from keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization
+from keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization, Dropout
 from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.core import Dense, Flatten, Lambda
+from keras.layers.core import Dense, Flatten
 from keras.utils.vis_utils import plot_model
-import numpy as np
 
 
 image_shape = (256, 256, 3)
@@ -31,26 +30,73 @@ def wasserstein_loss(y_true, y_pred):
 
 # model
 
+def dense_block(inputs, dilation_factor=None):
+    x = LeakyReLU(alpha=0.2)(inputs)
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(1, 1), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+    if dilation_factor is not None:
+        x = Conv2D(filters=channel_rate, kernel_size=(3, 3), padding='same', dilation_rate=dilation_factor)(x)
+    else:
+        x = Conv2D(filters=channel_rate, kernel_size=(3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Dropout(rate=0.5)(x)
+    return x
+
+
 def generator_model():
-    pass
+    inputs = Input(shape=(None, None, 3))
+    h = Conv2D(filters=4 * channel_rate, kernel_size=(3, 3), padding='same')(inputs)
+
+    dense_1 = dense_block(inputs=h)
+    x = concatenate([h, dense_1])
+    dense_2 = dense_block(inputs=x, dilation_factor=(1, 1))
+    x = concatenate([x, dense_2])
+    dense_3 = dense_block(inputs=x)
+    x = concatenate([x, dense_3])
+    dense_4 = dense_block(inputs=x, dilation_factor=(2, 2))
+    x = concatenate([x, dense_4])
+    dense_5 = dense_block(inputs=x)
+    x = concatenate([x, dense_5])
+    dense_6 = dense_block(inputs=x, dilation_factor=(3, 3))
+    x = concatenate([x, dense_6])
+    dense_7 = dense_block(inputs=x)
+    x = concatenate([x, dense_7])
+    dense_8 = dense_block(inputs=x, dilation_factor=(2, 2))
+    x = concatenate([x, dense_8])
+    dense_9 = dense_block(inputs=x)
+    x = concatenate([x, dense_9])
+    dense_10 = dense_block(inputs=x, dilation_factor=(1, 1))
+
+    x = LeakyReLU(alpha=0.2)(dense_10)
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(1, 1), padding='same')(x)
+    x = BatchNormalization()(x)
+
+    x = concatenate([h, x])
+    x = Conv2D(filters=channel_rate, kernel_size=(3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=0.2)(x)
+
+    outputs = Conv2D(filters=3, kernel_size=(3, 3), padding='same', activation='tanh')(x)
+    model = Model(inputs=inputs, outputs=outputs, name='Generator')
+    return model
 
 
 def discriminator_model():
     sigmoid_as_activation = False
     inputs = Input(shape=patch_shape)
-    x = Conv2D(filters=channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(inputs)
+    x = Conv2D(filters=channel_rate, kernel_size=(3, 3), strides=(2, 2), padding="same")(inputs)
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.2)(x)
 
-    x = Conv2D(filters=2 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = Conv2D(filters=2 * channel_rate, kernel_size=(3, 3), strides=(2, 2), padding="same")(x)
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.2)(x)
 
-    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(3, 3), strides=(2, 2), padding="same")(x)
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.2)(x)
 
-    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(3, 3), strides=(2, 2), padding="same")(x)
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.2)(x)
 
