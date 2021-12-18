@@ -12,65 +12,6 @@ from dataset.dataset_handling import load_data
 train_X, train_Y = load_data("dataset/Train")
 test_X, test_Y = load_data("dataset/Test")
 
-image_shape = (256, 256, 3)
-channel_rate = 64
-patch_shape = (channel_rate, channel_rate, 3)
-
-
-# losses
-def l1_loss(y_true, y_pred):
-    return K.mean(K.abs(y_pred - y_true))
-
-
-def perceptual_loss(y_true, y_pred):
-    vgg = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
-    loss_model = Model(inputs=vgg.input, outputs=vgg.get_layer('block3_conv3').output)
-    loss_model.trainable = False
-    return K.mean(K.square(loss_model(y_true) - loss_model(y_pred)))
-
-
-def wasserstein_loss(y_true, y_pred):
-    return K.mean(y_true*y_pred)
-
-
-# models
-
-def discriminator_model():
-    sigmoid_as_activation = False
-    inputs = Input(shape=patch_shape)
-    x = Conv2D(filters=channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(inputs)
-    x = BatchNormalization()(x)
-    x = LeakyReLU(alpha=0.2)(x)
-
-    x = Conv2D(filters=2 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
-    x = BatchNormalization()(x)
-    x = LeakyReLU(alpha=0.2)(x)
-
-    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
-    x = BatchNormalization()(x)
-    x = LeakyReLU(alpha=0.2)(x)
-
-    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
-    x = BatchNormalization()(x)
-    x = LeakyReLU(alpha=0.2)(x)
-
-    if sigmoid_as_activation:
-        x = Activation('sigmoid')(x)
-
-    x = Flatten()(x)
-    x = Dense(1024, activation='tanh')(x)
-    x = Dense(1, activation='sigmoid')(x)
-
-    model = Model(inputs=inputs, outputs=x, name='Discriminator')
-    return model
-
-
-def generator_containing_discriminator(generator, discriminator):
-    inputs = Input(shape=image_shape)
-    generated_image = generator(inputs)
-    outputs = discriminator(generated_image)
-    model = Model(inputs=inputs, outputs=outputs)
-    return model
 
 
 generator = Sequential()
