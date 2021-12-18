@@ -8,6 +8,9 @@ from tensorflow import keras
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Conv2DTranspose
 from tensorflow.keras.layers import Activation, Flatten, Dropout, Dense, Reshape, LeakyReLU
+import keras.backend as K
+from keras.applications.vgg16 import VGG16
+from keras.models import Model
 
 
 from dataset.dataset_handling import load_data
@@ -15,6 +18,25 @@ from dataset.dataset_handling import load_data
 
 train_X, train_Y = load_data("dataset/Train")
 test_X, test_Y = load_data("dataset/Test")
+
+image_shape = (256, 256, 3)
+
+
+# losses
+def l1_loss(y_true, y_pred):
+    return K.mean(K.abs(y_pred - y_true))
+
+
+def perceptual_loss(y_true, y_pred):
+    vgg = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
+    loss_model = Model(inputs=vgg.input, outputs=vgg.get_layer('block3_conv3').output)
+    loss_model.trainable = False
+    return K.mean(K.square(loss_model(y_true) - loss_model(y_pred)))
+
+
+def wasserstein_loss(y_true, y_pred):
+    return K.mean(y_true*y_pred)
+
 
 
 generator = Sequential()
