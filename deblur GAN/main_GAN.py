@@ -13,8 +13,8 @@ from tensorflow.keras.layers import Activation, Flatten, Dropout, Dense, Reshape
 from dataset.dataset_handling import load_data
 
 
-train_X, train_Y = load_data("dataset/Train.csv")
-test_X, test_Y = load_data("dataset/Test.csv")
+train_X, train_Y = load_data("dataset/Train")
+test_X, test_Y = load_data("dataset/Test")
 
 
 generator = Sequential()
