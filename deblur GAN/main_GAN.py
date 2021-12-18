@@ -1,67 +1,72 @@
-import keras.backend as K
-from keras.applications.vgg16 import VGG16
-from keras.models import Model
-from keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.core import Dense, Flatten, Lambda
+import os
+from PIL import Image
+import cv2
+from tqdm import tqdm
 import numpy as np
 
-from dataset.dataset_handling import load_data
+from dataset.dataset_handling import load_data, deprocess_image
+from model import generator_model, discriminator_model, generator_containing_discriminator, perceptual_loss, wasserstein_loss
+
+# BATCH_SIZE = 16
+# EPOCHS_NUM = 150
+lambda_val = 100
 
 
-train_X, train_Y = load_data("dataset/Train")
-test_X, test_Y = load_data("dataset/Test")
+WEIGHTS_DIR = 'weights/'
 
 
+def train(batch_size, epoch_num, discriminator_train_num=5):
+    data = load_data('./dataset/Train')
+    y_train, x_train = data['sharp'], data['blur']
 
-generator = Sequential()
-channel_dim = -1
-generator.add(Dense(7 * 7 * 128, input_shape=(32, 32, 3)))
-generator.add(Reshape([7, 7, 128]))
-generator.add(BatchNormalization(axis=channel_dim))
-generator.add(Conv2DTranspose(64, (5, 5), strides=2, padding="same", activation='selu'))
-generator.add(BatchNormalization(axis=channel_dim))
-generator.add(Conv2DTranspose(1, (5, 5), strides=2, padding="same", activation='tanh'))
+    g = generator_model()
+    d = discriminator_model()
+    d_on_g = generator_containing_discriminator(g, d)
 
-discriminator = Sequential()
-channel_dim = -1
-discriminator.add(Conv2D(64, (5, 5), strides=2, padding="same", activation=LeakyReLU(0.2), input_shape=(28, 28, 1)))
-discriminator.Dropout(0.4)
-discriminator.add(Conv2D(128, (5, 5), strides=2, padding="same", activation=LeakyReLU(0.2)))
-discriminator.Dropout(0.4)
-discriminator.Flatten()
-discriminator.add(Dense(1, activation='sigmoid'))
+    d.trainable = True
+    d.compile(optimizer='adam', loss=wasserstein_loss, lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
+    d.trainable = False
+    loss = [perceptual_loss, wasserstein_loss]
+    loss_weights = [lambda_val, 1]
+    d_on_g.compile(optimizer='adam', lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08,
+                   loss=loss, loss_weights=loss_weights)
+    d.trainable = True
 
-gan = Sequential([generator, discriminator])
+    for epoch in tqdm(range(epoch_num)):
+        # print("Training epoch {}".format(epoch + 1), '/', epoch_num)
 
-discriminator.compile(loss='binary_crossentropy', optimizer='rmsprop')
-discriminator.trainable = False
-gan.compile(loss='binary_crossentropy', optimizer='rmsprop')
+        permutated_indexes = np.random.permutation(x_train.shape[0])
 
-EPOCHS_NUM = 30
-INIT_LEARNING_RATE = 1e-3
-BATCH_SIZE = 32
+        d_losses = []
+        d_on_g_losses = []
+        for index in range(int(x_train.shape[0] / batch_size)):
+            batch_indexes = permutated_indexes[index * batch_size:(index + 1) * batch_size]
+            image_blur_batch = x_train[batch_indexes]
+            image_full_batch = y_train[batch_indexes]
 
-# dataset = tf.data.Dataset.form_tensor_slices(train_X).shuffle(1000)
-# d1ataset = dataset.batch(BATCH_SIZE, drop_reminder=True).prefetch(1)
+            generated_images = g.predict(x=image_blur_batch, batch_size=batch_size)
 
+            for _ in range(discriminator_train_num):
+                d_loss_real = d.train_on_batch(image_full_batch, np.ones((batch_size, 1)))
+                d_loss_fake = d.train_on_batch(generated_images, -np.ones((batch_size, 1)))
+                d_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
+                print('Batch %d d_loss : %f' % (index + 1, d_loss))
+                d_losses.append(d_loss)
 
-def train_network(gan, coding_size):
-    generator, discriminator = gan.layers
-    for epoch in range(EPOCHS_NUM):
-        for batch_X in train_X:
-            # Phase 1 - discriminator's learning
-            noise = tf.random.normal(shape=[BATCH_SIZE, coding_size])
-            generated_images = generator(noise)
-            fake_and_not_images = tf.concat([generated_images, batch_X], axis=0)
-            y1 = tf.constant([[0.]] * BATCH_SIZE + [[1.]] * BATCH_SIZE)
-            discriminator.trainable = True
-            discriminator.train_on_batch(fake_and_not_images, y1)
-            # Phase 2 - generator's learning
-            noise = tf.random.normal(shape=[BATCH_SIZE, coding_size])
-            y2 = tf.constant([[1.]] * BATCH_SIZE)
-            discriminator.trainable = False
-            gan.train_on_batch(noise, y2)
+            d.trainable = False
 
+            d_on_g_loss = d_on_g.train_on_batch(image_blur_batch, [image_full_batch, np.ones((batch_size, 1))])
+            print('Batch %d d_on_g_loss : %f' % (index + 1, d_on_g_loss))
+            d_on_g_losses.append(d_on_g_loss)
 
-train_network(gan, coding_size=30)
+            # g_loss = g.train_on_batch(image_blur_batch, image_full_batch)
+            # print('batch %d g_loss : %f' % (index + 1, g_loss))
+
+            d.trainable = True
+
+        g.save_weights(os.path.join(WEIGHTS_DIR, 'generator_{}_{}.h5'.format(epoch, int(np.mean(d_on_g_losses)))), True)
+        d.save_weights(os.path.join(WEIGHTS_DIR, 'discriminator_{}.h5'.format(epoch)), True)
+
+        
+if __name__ == '__main__':
+    train(16, 4)    
