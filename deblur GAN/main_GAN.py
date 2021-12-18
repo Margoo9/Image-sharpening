@@ -10,41 +10,11 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Co
 from tensorflow.keras.layers import Activation, Flatten, Dropout, Dense, Reshape, LeakyReLU
 
 
-def load_data(path, filename):
-    # turns each row into a list, put them in a whole list and shuffles data
-    file_path = os.path.join(path, filename)
-    csvfile = pd.read_csv(file_path, delimiter=',')
-    rows = [list(row) for row in csvfile.values]
-    random.shuffle(rows)
-
-    # preprocess the data -> getting the class ID and image path
-    labels = []
-    images = []
-    for (i, row) in enumerate(rows):
-        label = row[-2]
-        labels.append(int(label))
-
-        image_path = os.path.sep.join([path, row[-1]])
-        image = cv2.imread(image_path)
-        image = cv2.resize(image, (32, 32))
-        lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
-        l, a, b = cv2.split(lab)
-        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
-        cl = clahe.apply(l)
-        limg = cv2.merge((cl, a, b))
-        final = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
-        images.append(final)
-
-    labels = np.array(labels)
-    images = np.array(images)
-
-    return images, labels
+from dataset.dataset_handling import load_data
 
 
-train_X, train_Y = load_data("./", "Train.csv")
-test_X, test_Y = load_data("./", "Test.csv")
-
-train_X = train_X.reshape(-1, 28, 28, 1) * 2. - 1.
+train_X, train_Y = load_data("dataset/Train.csv")
+test_X, test_Y = load_data("dataset/Test.csv")
 
 
 generator = Sequential()
