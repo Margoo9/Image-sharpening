@@ -1,17 +1,10 @@
-import pandas as pd
-import numpy as np
-import os
-import random
-import cv2
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, BatchNormalization, Conv2DTranspose
-from tensorflow.keras.layers import Activation, Flatten, Dropout, Dense, Reshape, LeakyReLU
 import keras.backend as K
 from keras.applications.vgg16 import VGG16
 from keras.models import Model
-
+from keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization
+from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.core import Dense, Flatten, Lambda
+import numpy as np
 
 from dataset.dataset_handling import load_data
 
@@ -39,6 +32,45 @@ def perceptual_loss(y_true, y_pred):
 def wasserstein_loss(y_true, y_pred):
     return K.mean(y_true*y_pred)
 
+
+# models
+
+def discriminator_model():
+    sigmoid_as_activation = False
+    inputs = Input(shape=patch_shape)
+    x = Conv2D(filters=channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(inputs)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+
+    x = Conv2D(filters=2 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+
+    x = Conv2D(filters=4 * channel_rate, kernel_size=(4, 4), strides=(2, 2), padding="same")(x)
+    x = BatchNormalization()(x)
+    x = LeakyReLU(alpha=0.2)(x)
+
+    if sigmoid_as_activation:
+        x = Activation('sigmoid')(x)
+
+    x = Flatten()(x)
+    x = Dense(1024, activation='tanh')(x)
+    x = Dense(1, activation='sigmoid')(x)
+
+    model = Model(inputs=inputs, outputs=x, name='Discriminator')
+    return model
+
+
+def generator_containing_discriminator(generator, discriminator):
+    inputs = Input(shape=image_shape)
+    generated_image = generator(inputs)
+    outputs = discriminator(generated_image)
+    model = Model(inputs=inputs, outputs=outputs)
+    return model
 
 
 generator = Sequential()
