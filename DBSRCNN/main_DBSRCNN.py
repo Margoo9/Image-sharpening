@@ -24,6 +24,8 @@ test_Y, test_X = data['sharp'], data['blur']
 
 train_X = train_X.astype("float32")
 test_X = test_X.astype("float32")
+train_Y = train_Y.astype("float32")
+test_Y = test_Y.astype("float32")
 
 
 model = Sequential()
