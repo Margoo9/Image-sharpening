@@ -10,6 +10,7 @@ def load_image(path_to_image):
 
 def load_image_gray(path_to_image):
     image = cv2.imread(path_to_image, 0)
+    image = cv2.resize(image, (100, 100))
     return image
 
 
