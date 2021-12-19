@@ -58,8 +58,10 @@ def load_data(path):
         img_blur, img_sharp = load_image(x), load_image(y)
         images_blur.append(normalize_image(img_blur))
         images_sharp.append(normalize_image(img_sharp))
-    return np.array(images_blur), np.array(images_sharp)
-
+    return {
+        'blur': np.array(images_blur), 
+        'sharp': np.array(images_sharp)
+    }
 
 def load_data_gray(path):
     images_blur = []
@@ -71,5 +73,8 @@ def load_data_gray(path):
         img_blur, img_sharp = load_image_gray(x), load_image_gray(y)
         images_blur.append(img_blur)
         images_sharp.append(img_sharp)
-    return np.array(images_blur), np.array(images_sharp)
+    return {
+        'blur': np.array(images_blur), 
+        'sharp': np.array(images_sharp)
+    }
 
