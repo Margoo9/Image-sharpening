@@ -34,10 +34,10 @@ model = Sequential()
 model.add(Input(shape=(100, 100, 1)))
 
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
-model.add(MaxPooling2D((2, 2), padding='same'))
+# model.add(MaxPooling2D((2, 2), padding='same'))
 
 model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
-model.add(UpSampling2D((2, 2)))
+# model.add(UpSampling2D((2, 2)))
 
 model.add(Conv2D(1, (3, 3), activation='sigmoid', padding='same'))
 
