@@ -29,13 +29,13 @@ test_Y = test_Y.astype("float32")
 
 
 model = Sequential()
-model.add(Input(shape=(256, 256, 1)))
+model.add(Input(shape=(256, 256, 3)))
 
 model.add(Conv2D(32, (9, 9), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
-model.add(Conv2D(1, (5, 5), padding='same'))
+model.add(Conv2D(3, (5, 5), padding='same'))
 
 model.compile(optimizer='adam', loss='mse', lr=INIT_LEARNING_RATE, decay=INIT_LEARNING_RATE/(EPOCHS_NUM*0.5),
               beta_1=0.9, beta_2=0.999, epsilon=1e-08)
