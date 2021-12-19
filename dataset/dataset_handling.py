@@ -60,3 +60,15 @@ def load_data(path):
     return np.array(images_blur), np.array(images_sharp)
 
 
+def load_data_gray(path):
+    images_blur = []
+    images_sharp = []
+    blurs_path = os.path.join(path, 'blur')
+    sharps_path = os.path.join(path, 'sharp')
+    blurs_path, sharps_path = get_images(blurs_path), get_images(sharps_path)
+    for x, y in zip(blurs_path, sharps_path):
+        img_blur, img_sharp = load_image_gray(x), load_image_gray(y)
+        images_blur.append(img_blur)
+        images_sharp.append(img_sharp)
+    return np.array(images_blur), np.array(images_sharp)
+
