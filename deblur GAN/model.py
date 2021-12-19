@@ -1,10 +1,10 @@
-import keras.backend as K
-from keras.applications.vgg16 import VGG16
-from keras.models import Model
-from keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization, Dropout
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers.core import Dense, Flatten
-from keras.utils.vis_utils import plot_model
+import tensorflow.python.keras.backend as K
+from tensorflow.python.keras.applications.vgg16 import VGG16
+from tensorflow.python.keras.models import Model
+from tensorflow.python.keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization, Dropout
+from tensorflow.python.keras.layers.advanced_activations import LeakyReLU
+from tensorflow.python.keras.layers.core import Dense, Flatten
+from tensorflow.python.keras.utils.vis_utils import plot_model
 
 
 image_shape = (256, 256, 3)
