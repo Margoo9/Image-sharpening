@@ -115,7 +115,8 @@ def generator_containing_discriminator(generator, discriminator):
     inputs = Input(shape=image_shape)
     generated_image = generator(inputs)
     outputs = discriminator(generated_image)
-    model = Model(inputs=inputs, outputs=outputs)
+#     model = Model(inputs=inputs, outputs=outputs)
+    model = Model(inputs=inputs, outputs=[generated_image, outputs])
     return model
 
 
