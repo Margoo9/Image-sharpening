@@ -25,10 +25,13 @@ test_Y, test_X = data['sharp'], data['blur']
 # scaling images to values [0 ... 1]
 train_X = train_X.astype("float32") / 255.0
 test_X = test_X.astype("float32") / 255.0
+train_Y = train_Y.astype("float32") / 255.0
+test_Y = test_Y.astype("float32") / 255.0
 
-images_blur = np.reshape(train_X[1], (100, 100)) * 255.0
-images_sharp = np.reshape(train_Y[1], (100, 100)) * 255.0
-
+train_X = np.expand_dims(train_X, axis=-1)
+test_X = np.expand_dims(test_X, axis=-1)
+train_Y = np.expand_dims(train_Y, axis=-1)
+test_Y = np.expand_dims(test_Y, axis=-1)
 
 model = Sequential()
 model.add(Input(shape=(100, 100, 1)))
