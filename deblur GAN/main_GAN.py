@@ -88,5 +88,5 @@ def test(batch_size):
         
         
 if __name__ == '__main__':
-    train(16, 4)    
+    train(16, 50)    
     test(4)
