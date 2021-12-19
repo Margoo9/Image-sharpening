@@ -8,6 +8,11 @@ def load_image(path_to_image):
     return image
 
 
+def load_image_gray(path_to_image):
+    image = cv2.imread(path_to_image, 0)
+    return image
+
+
 # normalize data in range [-1, 1]
 def normalize_image(image):
     # image = cv2.reshape(image, (256, 256), interpolation = cv2.INTER_AREA)
