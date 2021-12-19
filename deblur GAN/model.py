@@ -1,4 +1,4 @@
-import tensorflow.python.keras.backend as K
+import tensorflow.python.keras as K
 from tensorflow.python.keras.applications.vgg16 import VGG16
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization, Dropout
@@ -14,18 +14,21 @@ patch_shape = (channel_rate, channel_rate, 3)
 
 # losses
 def l1_loss(y_true, y_pred):
-    return K.mean(K.abs(y_pred - y_true))
+    return K.backend.mean(K.backend.abs(y_pred - y_true))
 
 
 def perceptual_loss(y_true, y_pred):
     vgg = VGG16(include_top=False, weights='imagenet', input_shape=image_shape)
     loss_model = Model(inputs=vgg.input, outputs=vgg.get_layer('block3_conv3').output)
     loss_model.trainable = False
-    return K.mean(K.square(loss_model(y_true) - loss_model(y_pred)))
+    return K.backend.mean(K.backend.square(loss_model(y_true) - loss_model(y_pred)))
 
 
 def wasserstein_loss(y_true, y_pred):
-    return K.mean(y_true*y_pred)
+    return K.backend.mean(y_true*y_pred)
+
+def adversarial_loss(y_true, y_pred):
+    return -K.backend.log(y_pred)
 
 
 # model
