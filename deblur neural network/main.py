@@ -41,7 +41,7 @@ model.add(UpSampling2D((2, 2)))
 
 model.add(Conv2D(1, (3, 3), activation='sigmoid', padding='same'))
 
-model.compile(loss='mse', optimizer=K.optimizers.Adam(lr=LEARNING_RATE))
+model.compile(loss='mse', optimizer='adam', lr=LEARNING_RATE)
 model.build()
 model.summary()
 
