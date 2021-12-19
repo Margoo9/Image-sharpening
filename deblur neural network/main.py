@@ -73,12 +73,14 @@ model_json = model.to_json()
 with open("model.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model_nn.h5")
+model.save_weights("model_nn_weights.h5")
 print("Saved model to disk")
 
 path_to_model = "./model_nn.h5"
+path_to_model_weights = "./model_weights_pred.h5"
 predictions = model.predict(test_X, batch_size=BATCH_SIZE)
 model.save(path_to_model)
+model.save_weights(path_to_model_weights)
 
 # predictions_0 = predictions[0] * 255.0
 # predictions_0 = predictions_0.reshape(258, 540)
