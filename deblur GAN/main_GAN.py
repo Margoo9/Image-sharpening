@@ -7,12 +7,10 @@ import numpy as np
 from dataset.dataset_handling import load_data, deprocess_image
 from model import generator_model, discriminator_model, generator_containing_discriminator, perceptual_loss, wasserstein_loss
 
-# BATCH_SIZE = 16
-# EPOCHS_NUM = 150
+
 lambda_val = 100
 
-
-WEIGHTS_DIR = 'weights/'
+path_to_results = './results'
 
 
 def train(batch_size, epoch_num, discriminator_train_num=5):
