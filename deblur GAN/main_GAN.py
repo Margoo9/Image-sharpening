@@ -68,7 +68,7 @@ def train(batch_size, epoch_num, discriminator_train_num=5):
 
         
 def network_test(batch_size):
-    data = load_data(path_to_test_data, batch_size)
+    data = load_data(path_to_test_data)
     y_test, x_test = data['sharp'], data['blur']
     g = generator_model()
     g.load_weights('generator.h5')
