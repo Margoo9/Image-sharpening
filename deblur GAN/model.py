@@ -85,7 +85,6 @@ def generator_model():
 
 
 def discriminator_model():
-    sigmoid_as_activation = False
     inputs = Input(shape=patch_shape)
     x = Conv2D(filters=channel_rate, kernel_size=(3, 3), strides=(2, 2), padding="same")(inputs)
     x = BatchNormalization()(x)
@@ -103,14 +102,26 @@ def discriminator_model():
     x = BatchNormalization()(x)
     x = LeakyReLU(alpha=0.2)(x)
 
-    if sigmoid_as_activation:
-        x = Activation('sigmoid')(x)
-
     x = Flatten()(x)
-    x = Dense(1024, activation='tanh')(x)
     x = Dense(1, activation='sigmoid')(x)
 
-    model = Model(inputs=inputs, outputs=x, name='Discriminator')
+    model = Model(inputs=inputs, outputs=x, name='PatchGAN')
+    
+    inputs = Input(shape=image_shape)
+    
+    rows_indexes = [(0, 64), (64, 128), (128, 192), (192, 256)]
+    cols_indexes = [(0, 64), (64, 128), (128, 192), (192, 256)]
+
+    list_patch = []
+    for row in rows_indexes:
+        for col in cols_indexes:
+            x_patch = Lambda(lambda z: z[:, row[0]:row[1], col[0]:col[1], :])(inputs)
+            list_patch.append(x_patch)
+
+    x = [model(patch) for patch in list_patch]
+    outputs = Average()(x)
+    model = Model(inputs=inputs, outputs=outputs, name='Discriminator')
+    
     return model
 
 
@@ -118,8 +129,8 @@ def generator_containing_discriminator(generator, discriminator):
     inputs = Input(shape=image_shape)
     generated_image = generator(inputs)
     outputs = discriminator(generated_image)
-#     model = Model(inputs=inputs, outputs=outputs)
-    model = Model(inputs=inputs, outputs=[generated_image, outputs])
+    model = Model(inputs=inputs, outputs=outputs)
+#     model = Model(inputs=inputs, outputs=[generated_image, outputs])
     return model
 
 
