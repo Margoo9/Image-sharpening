@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 
 from dataset.dataset_handling import load_data, deprocess_image
-from model import generator_model, discriminator_model, generator_containing_discriminator, perceptual_loss, wasserstein_loss
+from model import generator_model, discriminator_model, generator_containing_discriminator, adversarial_loss, wasserstein_loss
 
 
 lambda_val = 100
@@ -24,10 +24,9 @@ def train(batch_size, epoch_num, discriminator_train_num=5):
     d.trainable = True
     d.compile(optimizer='adam', loss=wasserstein_loss, lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08)
     d.trainable = False
-    loss = [perceptual_loss, wasserstein_loss]
-    loss_weights = [lambda_val, 1]
+    
     d_on_g.compile(optimizer='adam', lr=1E-4, beta_1=0.9, beta_2=0.999, epsilon=1e-08,
-                   loss=loss, loss_weights=loss_weights)
+                   loss=adversarial_loss)
     d.trainable = True
 
     for epoch in tqdm(range(epoch_num)):
@@ -62,15 +61,15 @@ def train(batch_size, epoch_num, discriminator_train_num=5):
 
             d.trainable = True
 
-        g.save_weights(os.path.join(WEIGHTS_DIR, 'generator_{}_{}.h5'.format(epoch, int(np.mean(d_on_g_losses)))), True)
-        d.save_weights(os.path.join(WEIGHTS_DIR, 'discriminator_{}.h5'.format(epoch)), True)
+        g.save_weights('./generator.h5')
+        d.save_weights('./discriminator.h5')
 
         
-def test(batch_size):
+def network_test(batch_size):
     data = load_data('./dataset/Test', batch_size)
     y_test, x_test = data['sharp'], data['blur']
     g = generator_model()
-    g.load_weights('weights/generator.h5')
+    g.load_weights('generator.h5')
     generated_images = g.predict(x=x_test, batch_size=batch_size)
     generated = np.array([deprocess_image(img) for img in generated_images])
     x_test = deprocess_image(x_test)
@@ -82,9 +81,9 @@ def test(batch_size):
         img = generated[i, :, :, :]
         output = np.concatenate((y, x, img), axis=1)
         im = Image.fromarray(output.astype(np.uint8))
-        im.save('res{}.jpg'.format(i)) 
+        im.save((os.path.join(path_to_results, 'res{}.jpg'.format(i)))) 
         
         
 if __name__ == '__main__':
-    train(16, 50)    
+    train(16, 75)    
     test(4)
