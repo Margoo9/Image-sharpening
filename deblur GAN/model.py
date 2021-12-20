@@ -1,9 +1,11 @@
 import tensorflow.python.keras as K
+from tensorflow.python import keras as K
 from tensorflow.python.keras.applications.vgg16 import VGG16
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.layers import Input, concatenate, Activation, Conv2D, BatchNormalization, Dropout
 from tensorflow.python.keras.layers.advanced_activations import LeakyReLU
-from tensorflow.python.keras.layers.core import Dense, Flatten
+from tensorflow.python.keras.layers.core import Dense, Flatten, Lambda
+from tensorflow.python.keras.layers.merge import Average
 from tensorflow.python.keras.utils.vis_utils import plot_model
 
 
