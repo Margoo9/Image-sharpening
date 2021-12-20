@@ -10,15 +10,17 @@ from tensorflow.python import keras as K
 from dataset.dataset_handling import load_data
 
 
-EPOCHS_NUM = 50
+EPOCHS_NUM = 75
 INIT_LEARNING_RATE = 1e-4
 BATCH_SIZE = 64
 
+path_to_train_data = './dataset/train'
+path_to_test_data = './dataset/test'
 
-data = load_data('./dataset/Train')
+data = load_data(path_to_train_data)
 train_Y, train_X = data['sharp'], data['blur']
 
-data_test = load_data('./dataset/Test')
+data_test = load_data(path_to_test_data)
 test_Y, test_X = data['sharp'], data['blur']
 
 
