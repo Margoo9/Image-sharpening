@@ -1,4 +1,4 @@
-import tensorflow.python.keras as K
+# import tensorflow.python.keras as K
 from tensorflow.python import keras as K
 from tensorflow.python.keras.applications.vgg16 import VGG16
 from tensorflow.python.keras.models import Model
