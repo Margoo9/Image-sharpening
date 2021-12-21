@@ -14,6 +14,17 @@ def load_image_gray(path_to_image):
     return image
 
 
+def load_images_100(path):
+    image_list = np.zeros((len(path), 100, 100, 1))
+    for i, fig in enumerate(path):
+        img = K.preprocessing.image.load_img(fig, color_mode='grayscale', target_size=(100, 100))
+        x = K.preprocessing.image.img_to_array(img).astype('float32')
+        x = x / 255.0
+        image_list[i] = x
+
+    return image_list
+
+
 # normalize data in range [-1, 1]
 def normalize_image(image):
     # image = cv2.reshape(image, (256, 256), interpolation = cv2.INTER_AREA)
