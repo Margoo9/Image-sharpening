@@ -45,43 +45,35 @@ def network_test(model, weights, test_image, out_dir, batch_size):
         im = Image.fromarray(res_0.astype(np.uint8))
         im.save(os.path.join(out_dir, 'result.png'))
     elif is_GAN:
-        images_path = gb.glob(test_image)
-        x_test = []
-        for image_path in images_path:
-            image_blur = load_image(image_path)
-            x_test.append(np.array(image_blur))
-
-        x_test = np.array(x_test).astype(np.float32)
-        x_test = normalize_image(x_test)
-
-        g = generator_model()
-        g.load_weights(weights)
-
-        generated_img = g.predict(x=x_test, batch_size=batch_size)
-        generated_img = deprocess_image(generated_img)
-        for i in range(generated_img.shape[0]):
-            image_generated = generated_img[i, :, :, :]
-            im = Image.fromarray(image_generated)
-            im.save(os.path.join(out_dir, 'result.png'))
+        for image_name in os.listdir(test_image):
+            image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
+            x_test = image
+            chosen_model = generator_model()
+            chosen_model.load_weights(weights)
+            generated_images = chosen_model.predict(x=x_test)
+            generated = np.array([deprocess_image(img) for img in generated_images])
+            x_test = deprocess_image(x_test)
+            for i in range(generated_images.shape[0]):
+                x = x_test[i, :, :, :]
+                img = generated[i, :, :, :]
+                output = np.concatenate((x, img), axis=1)
+                im = Image.fromarray(output.astype(np.uint8))
+                im.save(os.path.join(out_dir, image_name))
     else:
-        images_path = gb.glob(test_image)
-        x_test = []
-        for image_path in images_path:
-            image_blur = load_image(image_path)
-            x_test.append(np.array(image_blur))
-
-        x_test = np.array(x_test).astype(np.float32)
-        x_test = normalize_image(x_test)
-
-        chosen_model = K.models.load_model(model)
-        chosen_model.load_weights(weights)
-
-        generated_img = chosen_model.predict(x=x_test, batch_size=batch_size)
-        generated_img = deprocess_image(generated_img)
-        for i in range(generated_img.shape[0]):
-            image_generated = generated_img[i, :, :, :]
-            im = Image.fromarray(image_generated)
-            im.save(os.path.join(out_dir, 'result.png'))
+        for image_name in os.listdir(test_image):
+            image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
+            x_test = image
+            chosen_model = K.models.load_model(model)
+            chosen_model.load_weights(weights)
+            generated_images = chosen_model.predict(x=x_test)
+            generated = np.array([deprocess_image(img) for img in generated_images])
+            x_test = deprocess_image(x_test)
+            for i in range(generated_images.shape[0]):
+                x = x_test[i, :, :, :]
+                img = generated[i, :, :, :]
+                output = np.concatenate((x, img), axis=1)
+                im = Image.fromarray(output.astype(np.uint8))
+                im.save(os.path.join(out_dir, image_name))
 
 
 network_test(path_to_model, path_to_model_weights, path_to_test_image, path_to_result_save, batch_size)
