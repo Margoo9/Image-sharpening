@@ -103,5 +103,5 @@ def network_test(batch_size):
         
         
 if __name__ == '__main__':
-    train(16, 75)    
+    train(4, 75)    
     network_test(4)
