@@ -20,7 +20,7 @@ is_size_100 = True
 # False if other networks
 is_GAN = False
 
-path_to_test_image = './images_before_test'
+path_to_test_image = './images_before_test/testowa.jpg'
 path_to_model = './model.h5'
 path_to_model_weights = './model_weights.h5'
 path_to_result_save = './images_after_test/'
