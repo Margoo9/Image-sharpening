@@ -3,9 +3,25 @@ from PIL import Image
 import cv2
 from tqdm import tqdm
 import numpy as np
+from tensorflow.python.framework.config import set_memory_growth
+# import tensorflow as tf
 
 from dataset.dataset_handling import load_data, deprocess_image
 from model import generator_model, discriminator_model, generator_containing_discriminator, adversarial_loss, wasserstein_loss
+
+
+# config = tf.compat.v1.ConfigProto()
+# config.gpu_options.allow_growth = True
+# session = tf.compat.v1.Session(config=config)
+
+tf.compat.v1.disable_v2_behavior()
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    try:
+        for gpu in gpus:
+            set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
 
 
 lambda_val = 100
