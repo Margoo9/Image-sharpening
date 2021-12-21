@@ -14,8 +14,8 @@ EPOCHS_NUM = 75
 LEARNING_RATE = 1e-4
 BATCH_SIZE = 20
 
-path_to_train_data ='./dataset/train'
-path_to_test_data = './dataset/test'
+path_to_train_data ='../dataset/train'
+path_to_test_data = '../dataset/test'
 
 
 data = load_data_gray(path_to_train_data)
@@ -47,7 +47,7 @@ model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
 
 model.add(Conv2D(1, (3, 3), activation='sigmoid', padding='same'))
 
-model.compile(loss='mse', optimizer='adam', lr=LEARNING_RATE)
+model.compile(loss='mse', optimizer='adam', learning_rate=LEARNING_RATE)
 model.build()
 model.summary()
 
