@@ -107,22 +107,7 @@ def discriminator_model():
     x = Flatten()(x)
     x = Dense(1, activation='sigmoid')(x)
 
-    model = Model(inputs=inputs, outputs=x, name='PatchGAN')
-    
-    inputs = Input(shape=image_shape)
-    
-    rows_indexes = [(0, 64), (64, 128), (128, 192), (192, 256)]
-    cols_indexes = [(0, 64), (64, 128), (128, 192), (192, 256)]
-
-    list_patch = []
-    for row in rows_indexes:
-        for col in cols_indexes:
-            x_patch = Lambda(lambda z: z[:, row[0]:row[1], col[0]:col[1], :])(inputs)
-            list_patch.append(x_patch)
-
-    x = [model(patch) for patch in list_patch]
-    outputs = Average()(x)
-    model = Model(inputs=inputs, outputs=outputs, name='Discriminator')
+    model = Model(inputs=inputs, outputs=x, name='Discriminator')
     
     return model
 
