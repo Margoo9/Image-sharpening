@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from tensorflow.python import keras as K
 
 
 def load_image(path_to_image):
