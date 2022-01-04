@@ -12,10 +12,10 @@ from dataset.dataset_handling import load_data
 
 EPOCHS_NUM = 75
 INIT_LEARNING_RATE = 1e-4
-BATCH_SIZE = 64
+BATCH_SIZE = 20
 
-path_to_train_data = './dataset/train'
-path_to_test_data = './dataset/test'
+path_to_train_data = '../dataset/train'
+path_to_test_data = '../dataset/test'
 
 data = load_data(path_to_train_data)
 train_Y, train_X = data['sharp'], data['blur']
@@ -37,6 +37,14 @@ model.add(Conv2D(32, (9, 9), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
 model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (9, 9), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (9, 9), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
+model.add(Conv2D(32, (5, 5), activation='relu', padding='same'))
 model.add(Conv2D(3, (5, 5), padding='same'))
 
 model.compile(optimizer='adam', loss='mse', lr=INIT_LEARNING_RATE, decay=INIT_LEARNING_RATE/(EPOCHS_NUM*0.5),
@@ -52,17 +60,34 @@ history = model.fit(train_X, train_Y,
                     callbacks=[early_stopping]
                     )
 
-# serialize model to JSON
+
+# jako deblur12
 model_json = model.to_json()
-with open("model_DBSRCNN.json", "w") as json_file:
+with open("model.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model_DBSRCNN_weights.h5")
-model.save('DBSRCNN_model_blur.h5')
+model.save_weights("model_nn_weights.h5")
 print("Saved model to disk")
 
-path_to_model = "./model_DBSRCNN_predict.h5"
-path_to_model_weigths = "./model_DBSRCNN_predict_weights.h5"
+path_to_model = "./model_nn.h5"
+path_to_model_weights = "./model_weights_pred.h5"
 predictions = model.predict(test_X, batch_size=BATCH_SIZE)
 model.save(path_to_model)
-model.save_weights(path_to_model_weigths)
+model.save_weights(path_to_model_weights)
+# koniec
+
+
+# # serialize model to JSON
+# model_json = model.to_json()
+# with open("model_DBSRCNN.json", "w") as json_file:
+#     json_file.write(model_json)
+# # serialize weights to HDF5
+# model.save_weights("model_DBSRCNN_weights.h5")
+# model.save('DBSRCNN_model_blur.h5')
+# print("Saved model to disk")
+#
+# path_to_model = "./model_DBSRCNN_predict.h5"
+# path_to_model_weigths = "./model_DBSRCNN_predict_weights.h5"
+# predictions = model.predict(test_X, batch_size=BATCH_SIZE)
+# model.save(path_to_model)
+# model.save_weights(path_to_model_weigths)

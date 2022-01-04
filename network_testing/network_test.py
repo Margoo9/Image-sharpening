@@ -6,24 +6,42 @@ import glob as gb
 from tensorflow.python import keras as K
 import matplotlib.pyplot as plt
 
-from dataset_handling import load_image, deprocess_image, normalize_image, load_images_100
+from dataset.dataset_handling import load_image, deprocess_image, normalize_image, load_images_100
 from deblurGAN.model import generator_model
 
 
 # is_size_100
 # True if deblur neural network is used
-# False if DBSRCNN or deblur GAN
-is_size_100 = True
+# False if DBSRCNN or deblurGAN
+
+
 
 # is_GAN
 # True if GAN is tested
 # False if other networks
 is_GAN = False
 
-path_to_test_image = './images_before_test/testowa.jpg'
-path_to_model = './model.h5'
-path_to_model_weights = './model_weights.h5'
-path_to_result_save = './images_after_test/'
+# deblur
+# is_size_100 = True
+# path_to_test_image = '../network_testing/images_before_test/381.jpg'
+# path_to_model = '../deblur12/model_nn.h5'
+# path_to_model_weights = '../deblur12/model_nn_weights.h5'
+# path_to_result_save = '../network_testing/images_after_test/'
+
+# DBSRCNN
+# is_size_100 = False
+# path_to_test_image = '../network_testing/images_before_test'
+# path_to_model = '../DBSRCNN/DBSRCNN_model_blur.h5'
+# path_to_model_weights = '../DBSRCNN/model_DBSRCNN_weights.h5'
+# path_to_result_save = '../network_testing/images_after_test'
+
+# DBSRCNN
+is_size_100 = False
+path_to_test_image = '../network_testing/images_before_test'
+path_to_model = '../DBSRCNN/model_nn.h5'
+path_to_model_weights = '../DBSRCNN/model_nn_weights.h5'
+path_to_result_save = '../network_testing/images_after_test'
+
 batch_size = 4
 
 
@@ -43,7 +61,7 @@ def network_test(model, weights, test_image, out_dir, batch_size):
         # plt.show()
         # cv2.imwrite('result.png', res_0)
         im = Image.fromarray(res_0.astype(np.uint8))
-        im.save(os.path.join(out_dir, 'result.png'))
+        im.save(os.path.join(out_dir, 'result.jpg'))
     elif is_GAN:
         for image_name in os.listdir(test_image):
             image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
@@ -69,11 +87,14 @@ def network_test(model, weights, test_image, out_dir, batch_size):
             generated = np.array([deprocess_image(img) for img in generated_images])
             x_test = deprocess_image(x_test)
             for i in range(generated_images.shape[0]):
-                x = x_test[i, :, :, :]
+                # x = x_test[i, :, :, :]
                 img = generated[i, :, :, :]
-                output = np.concatenate((x, img), axis=1)
-                im = Image.fromarray(output.astype(np.uint8))
-                im.save(os.path.join(out_dir, image_name))
+                # output = np.concatenate((x, img), axis=1)
+                # im = Image.fromarray(output.astype(np.uint8))
+                im = Image.fromarray(img.astype(np.uint8))
+                im = np.array(im)
+                # im = cv2.cvtColor(im, cv2.COLOR_GRAY2RGB)
+                im.save(os.path.join(out_dir, 'result.jpg'))
 
 
 network_test(path_to_model, path_to_model_weights, path_to_test_image, path_to_result_save, batch_size)

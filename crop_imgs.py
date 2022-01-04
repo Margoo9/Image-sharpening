@@ -104,7 +104,8 @@ def process(img):
     return img_crop
 
 if __name__ == "__main__":
-    mypath = 'E:\\New\\Test\\baby_back_ribs\\'      #zmienic sciezke do folderu
+    mypath = 'I:\\GitHub\\Image-sharpening\\dataset\\test\\'      #zmienic sciezke do folderu
+    # mypath = 'I:\\GitHub\\Image-sharpening\\dataset\\train\\'  # train albo test, wybrać jedno i zakomentowac
     filenames = next(walk(mypath + "blur"), (None, None, []))[2]  # [] if no file
 
     for filename in filenames:
