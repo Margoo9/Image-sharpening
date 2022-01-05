@@ -4,6 +4,7 @@ import os
 import cv2
 import glob as gb
 from tensorflow.python import keras as K
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from dataset.dataset_handling import load_image, deprocess_image, normalize_image, load_images_100
@@ -41,7 +42,9 @@ is_GAN = False
 is_size_100 = False
 path_to_test_image = '../network_testing/images_before_test'
 path_to_model = '../DBSRCNN/model_nn.h5'
+# path_to_model = '../DBSRCNN/model_z_neta.json'
 path_to_model_weights = '../DBSRCNN/model_nn_weights.h5'
+# path_to_model_weights = '../DBSRCNN/DBSRCNN_model_weights_blur1.h5'
 path_to_result_save = '../network_testing/images_after_test'
 
 batch_size = 4
@@ -84,16 +87,23 @@ def network_test(model, weights, test_image, out_dir, batch_size):
             image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
             # image = np.array([resize_image(load_image(os.path.join(test_image, image_name)))])
             chosen_model = K.models.load_model(model)
+            # json_file = open(path_to_model, 'r')
+            # json_file = json_file.read()
+            # json_file.close()
+            # loaded_model = model_from_json(loaded_model_json)
+            # chosen_model = tf.keras.models.model_from_json(json_file)
             chosen_model.load_weights(weights)
             res = chosen_model.predict(x=image)
             # cv2.imshow('0', res[0])
             res = deprocess_image(res[0])
+            res = cv2.cvtColor(res, cv2.COLOR_BGR2RGB)
             # res = deprocess_image(res)
 
             # cv2.waitKey(0)
             img = Image.fromarray(res.astype(np.uint8))
             # img = Image.fromarray(res.astype(np.float32))
             # img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+
             img.save(os.path.join(out_dir, image_name))
             # cv2.imshow('0', img)
             # cv2.waitKey()
