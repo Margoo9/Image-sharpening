@@ -22,7 +22,7 @@ data = load_data_gray(path_to_train_data)
 train_Y, train_X = data['sharp'], data['blur']
 
 data_test = load_data_gray(path_to_test_data)
-test_Y, test_X = data['sharp'], data['blur']
+test_Y, test_X = data_test['sharp'], data_test['blur']
 
 
 # scaling images to values [0 ... 1]
