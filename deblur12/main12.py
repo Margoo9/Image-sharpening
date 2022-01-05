@@ -19,7 +19,7 @@ data = load_data_gray('../dataset/Train')
 train_Y, train_X = data['sharp'], data['blur']
 
 data_test = load_data_gray('../dataset/Test')
-test_Y, test_X = data['sharp'], data['blur']
+test_Y, test_X = data_test['sharp'], data_test['blur']
 
 
 # scaling images to values [0 ... 1]
