@@ -23,7 +23,9 @@ is_GAN = False
 
 # deblur
 # is_size_100 = True
-# path_to_test_image = '../network_testing/images_before_test/381.jpg'
+# is_size_100 = False
+# # path_to_test_image = '../network_testing/images_before_test/381.jpg'
+# path_to_test_image = '../network_testing/images_before_test'
 # path_to_model = '../deblur12/model_nn.h5'
 # path_to_model_weights = '../deblur12/model_nn_weights.h5'
 # path_to_result_save = '../network_testing/images_after_test/'
@@ -80,21 +82,38 @@ def network_test(model, weights, test_image, out_dir, batch_size):
     else:
         for image_name in os.listdir(test_image):
             image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
-            x_test = image
+            # image = np.array([resize_image(load_image(os.path.join(test_image, image_name)))])
             chosen_model = K.models.load_model(model)
             chosen_model.load_weights(weights)
-            generated_images = chosen_model.predict(x=x_test)
-            generated = np.array([deprocess_image(img) for img in generated_images])
-            x_test = deprocess_image(x_test)
-            for i in range(generated_images.shape[0]):
-                # x = x_test[i, :, :, :]
-                img = generated[i, :, :, :]
-                # output = np.concatenate((x, img), axis=1)
-                # im = Image.fromarray(output.astype(np.uint8))
-                im = Image.fromarray(img.astype(np.uint8))
-                im = np.array(im)
-                # im = cv2.cvtColor(im, cv2.COLOR_GRAY2RGB)
-                im.save(os.path.join(out_dir, 'result.jpg'))
+            res = chosen_model.predict(x=image)
+            # cv2.imshow('0', res[0])
+            res = deprocess_image(res[0])
+            # res = deprocess_image(res)
+
+            # cv2.waitKey(0)
+            img = Image.fromarray(res.astype(np.uint8))
+            # img = Image.fromarray(res.astype(np.float32))
+            # img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+            img.save(os.path.join(out_dir, image_name))
+            # cv2.imshow('0', img)
+            # cv2.waitKey()
+        # for image_name in os.listdir(test_image):
+        #     image = np.array([normalize_image(load_image(os.path.join(test_image, image_name)))])
+        #     x_test = image
+        #     chosen_model = K.models.load_model(model)
+        #     chosen_model.load_weights(weights)
+        #     generated_images = chosen_model.predict(x=x_test)
+        #     generated = np.array([deprocess_image(img) for img in generated_images])
+        #     x_test = deprocess_image(x_test)
+        #     for i in range(generated_images.shape[0]):
+        #         # x = x_test[i, :, :, :]
+        #         img = generated[i, :, :, :]
+        #         # output = np.concatenate((x, img), axis=1)
+        #         # im = Image.fromarray(output.astype(np.uint8))
+        #         im = Image.fromarray(img.astype(np.uint8))
+        #         # im = np.array(im)
+        #         # im = cv2.cvtColor(im, cv2.COLOR_GRAY2RGB)
+        #         im.save(os.path.join(out_dir, 'result.jpg'))
 
 
 network_test(path_to_model, path_to_model_weights, path_to_test_image, path_to_result_save, batch_size)
